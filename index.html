@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Bar Navigation Tool</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+            font-family: 'Courier New', monospace;
+        }
+        #gameArea {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            cursor: default;
+            background-color: white;
+            background-image:
+                linear-gradient(#20B2AA 1px, transparent 1px),
+                linear-gradient(90deg, #20B2AA 1px, transparent 1px),
+                linear-gradient(#FFB6C1 1px, transparent 1px),
+                linear-gradient(90deg, #FFB6C1 1px, transparent 1px),
+                linear-gradient(rgba(32, 178, 170, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(32, 178, 170, 0.3) 1px, transparent 1px);
+            background-size: 
+                100px 100px,
+                100px 100px,
+                20px 20px,
+                20px 20px,
+                4px 4px,
+                4px 4px;
+            transform-origin: 0 0;
+        }
+        #dot {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s ease;
+        }
+        #score, #instructions {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #20B2AA;
+        }
+        #score {
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+        }
+        #instructions {
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+            max-width: 250px;
+        }
+        .instruction-icon {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            margin-right: 5px;
+        }
+        #spacebar {
+            width: 200px;
+            height: 40px;
+            background-color: #f0f0f0;
+            border: 2px solid #d0d0d0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
+            color: #333;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #20B2AA;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="title">Space Bar Navigation Tool</div>
+        <div id="dot"></div>
+        <div id="score">Score: 0</div>
+        <div id="instructions">
+            <h3>How to Play:</h3>
+            <p><span class="instruction-icon">🖱️</span> Click and drag red dot</p>
+            <p><span class="instruction-icon">🚀</span> Hold Spacebar + drag to move</p>
+            <p><span class="instruction-icon">🔍</span> Cmd/Ctrl + '+' to zoom in</p>
+            <p><span class="instruction-icon">🔎</span> Cmd/Ctrl + '-' to zoom out</p>
+        </div>
+        <div id="spacebar">spacebar.</div>
+    </div>
+
+    <script>
+        // The JavaScript remains the same as in the previous version
+        const gameArea = document.getElementById('gameArea');
+        const dot = document.getElementById('dot');
+        const scoreDisplay = document.getElementById('score');
+        const spacebar = document.getElementById('spacebar');
+        let isDragging = false;
+        let score = 0;
+        let dotInterval;
+        let scale = 1;
+
+        function updateDotPosition() {
+            const x = Math.random() * (gameArea.clientWidth / scale - 20);
+            const y = Math.random() * (gameArea.clientHeight / scale - 20);
+            dot.style.left = `${x}px`;
+            dot.style.top = `${y}px`;
+        }
+
+        function startDotMovement() {
+            dotInterval = setInterval(updateDotPosition, 2000);
+        }
+
+        function stopDotMovement() {
+            clearInterval(dotInterval);
+        }
+
+        function updateScore() {
+            score += 10;
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        function zoom(direction) {
+            scale += direction * 0.1;
+            scale = Math.max(0.5, Math.min(scale, 3));
+            gameArea.style.transform = `scale(${scale})`;
+        }
+
+        gameArea.addEventListener('mousedown', (e) => {
+            if (e.target === dot) {
+                isDragging = true;
+                gameArea.style.cursor = 'grabbing';
+                stopDotMovement();
+                updateScore();
+            } else if (e.buttons === 1) {
+                gameArea.style.cursor = 'grabbing';
+            }
+        });
+
+        gameArea.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                dot.style.left = `${(e.clientX / scale) - 10}px`;
+                dot.style.top = `${(e.clientY / scale) - 10}px`;
+            } else if (e.buttons === 1) {
+                gameArea.scrollLeft -= e.movementX / scale;
+                gameArea.scrollTop -= e.movementY / scale;
+            }
+        });
+
+        gameArea.addEventListener('mouseup', () => {
+            isDragging = false;
+            gameArea.style.cursor = 'default';
+            if (!dotInterval) {
+                startDotMovement();
+            }
+        });
+
+        gameArea.addEventListener('mouseleave', () => {
+            isDragging = false;
+            gameArea.style.cursor = 'default';
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.keyCode === 32) {
+                e.preventDefault();
+                gameArea.style.cursor = 'grab';
+                spacebar.style.backgroundColor = '#d0d0d0';
+            }
+            if ((e.metaKey || e.ctrlKey) && e.key === '+') {
+                e.preventDefault();
+                zoom(1);
+            }
+            if ((e.metaKey || e.ctrlKey) && e.key === '-') {
+                e.preventDefault();
+                zoom(-1);
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' || e.keyCode === 32) {
+                gameArea.style.cursor = 'default';
+                spacebar.style.backgroundColor = '#f0f0f0';
+            }
+        });
+
+        updateDotPosition();
+        startDotMovement();
+    </script>
+</body>
+</html>
