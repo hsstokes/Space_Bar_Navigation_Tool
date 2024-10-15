@@ -7,13 +7,23 @@
     <style>
         body {
             margin: 0;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             user-select: none;
             font-family: 'Courier New', monospace;
         }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
         #gameArea {
             width: 100vw;
-            height: 100vh;
+            height: calc(100vh - 56.25vw - 20px);
+            max-height: calc(100vh - 450px);
+            min-height: 300px;
             position: relative;
             cursor: default;
             background-color: white;
@@ -94,10 +104,46 @@
             padding: 5px 10px;
             border-radius: 5px;
         }
+        .video-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; 
+    margin-bottom: 20px;
+    overflow: hidden;
+    max-width: 800px; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #464646;
+}
+ @media (max-width: 768px) {
+            #gameArea {
+                height: calc(100vh - 75vw - 20px);
+            }
+            #instructions {
+                font-size: 12px;
+                max-width: 200px;
+            }
+            #title {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="gameArea">
+    <div class="container">
+        <div class="video-container">
+            <iframe src="https://ual.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=ace90aa8-850f-4ec4-9fd3-b20a00e6c320&autoplay=false&offerviewer=true&showtitle=true&showbrand=true&captions=false&interactivity=all" allowfullscreen allow="autoplay" aria-label="Panopto Embedded Video Player" aria-description="spacebar navigation in Photoshop."></iframe>
+        </div>
+        <div id="gameArea">
         <div id="title">Space Bar Navigation Tool</div>
         <div id="dot"></div>
         <div id="score">Score: 0</div>
